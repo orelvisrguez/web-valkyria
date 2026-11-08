@@ -114,7 +114,7 @@ directamente a esa sección y a la de cuidado e higiene. Las consultas sobre
 higiene y las condiciones de los turnos publican las políticas confirmadas por
 el estudio: equipos esterilizados, materiales descartables, seña no
 reembolsable del 30% al solicitar el turno, cancelación con 24 horas de
-anticipación y tolerancia de hasta 30 minutos. Se acepta efectivo,
+anticipación y tolerancia de hasta 10 minutos. Se acepta efectivo,
 transferencia y Mercado Pago. Los botones de reserva y consultas abren WhatsApp.
 
 La dirección y el horario publicados corresponden a la información disponible

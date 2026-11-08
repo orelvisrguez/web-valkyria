@@ -1,0 +1,7 @@
+packages:
+  - .
+
+overrides:
+  glob: 14.0.4
+  minimatch: 11.0.5
+  path-to-regexp: 6.3.0

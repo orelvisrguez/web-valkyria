@@ -98,6 +98,9 @@ desplegarse automáticamente; también puedes iniciar un despliegue desde Vercel
 
 El proyecto incluye `package-lock.json`; usa `npm ci` para instalar las mismas
 versiones de dependencias en cada entorno.
+Las versiones seguras de dependencias transitivas del adaptador Vercel se fijan
+en `package.json` y `pnpm-workspace.yaml`; conserva ambas configuraciones al
+actualizar dependencias y verifica `npm audit` y `pnpm audit`.
 
 ## Contenido
 

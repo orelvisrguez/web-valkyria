@@ -54,3 +54,17 @@ fotos propias cuando estén disponibles.
 La dirección y el horario publicados corresponden a la información disponible
 en el perfil público de Google del estudio. Verifica los datos antes de
 publicar cambios.
+
+## Vercel Speed Insights
+
+El sitio incluye el componente oficial `@vercel/speed-insights/astro`. Para
+recibir métricas de rendimiento:
+
+1. Importa el repositorio y despliega el proyecto en Vercel.
+2. En el panel de Vercel, abre el proyecto y habilita **Speed Insights**.
+3. Vuelve a desplegar si Vercel lo solicita y visita el sitio publicado para
+   empezar a generar datos.
+
+Speed Insights no recopila métricas durante el desarrollo local. La integración
+se encuentra en `src/pages/index.astro`; al ser un sitio Astro estático, no
+requiere configurar el adaptador de Vercel.

@@ -1,4 +1,6 @@
 ---
+import SpeedInsights from "@vercel/speed-insights/astro";
+
 const instagram = "https://www.instagram.com/valkyriasnailstudios/";
 const facebook = "https://www.facebook.com/valkyriasnailstudios/";
 const tiktok = "https://www.tiktok.com/@valkyriasnailstudios";
@@ -336,6 +338,8 @@ const services = [
         <a href={googleBusiness} target="_blank" rel="noreferrer">Ver perfil en Google <span aria-hidden="true">↗</span></a>
       </div>
     </footer>
+
+    <SpeedInsights />
 
     <script>
       document.documentElement.classList.add("js");

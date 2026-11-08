@@ -51,8 +51,13 @@ en `src/pages/index.astro`. La galería permite filtrar ideas de inspiración
 por categoría; sus fotografías de Unsplash no representan trabajos del estudio.
 Reemplázalas por fotos propias cuando estén disponibles. La sección de
 opiniones incluye fragmentos de reseñas públicas de Google y enlaza al perfil
-para consultar las reseñas completas. Los botones de reserva y consultas
-abren WhatsApp.
+para consultar las reseñas completas. La sección sobre el estudio presenta a
+Susana Delgado y sus más de diez años de experiencia, y la navegación enlaza
+directamente a esa sección y a la de cuidado e higiene. Las consultas sobre
+higiene, uso de autoclave, señas y demoras abren WhatsApp porque esos protocolos
+y condiciones deben confirmarse con el estudio antes de publicarse. La foto
+real del espacio también queda pendiente de recibir una imagen del estudio. Los
+botones de reserva y consultas abren WhatsApp.
 
 La dirección y el horario publicados corresponden a la información disponible
 en el perfil público de Google del estudio. Verifica los datos antes de

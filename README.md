@@ -47,13 +47,29 @@ versiones de dependencias en cada entorno.
 ## Contenido
 
 La página, sus servicios, enlaces sociales, horarios e imágenes se configuran
-en `src/pages/index.astro`. Las fotografías de la galería son imágenes de
-inspiración de Unsplash y están identificadas como tales; reemplázalas por
-fotos propias cuando estén disponibles.
+en `src/pages/index.astro`. La galería permite filtrar ideas de inspiración
+por categoría; sus fotografías de Unsplash no representan trabajos del estudio.
+Reemplázalas por fotos propias cuando estén disponibles. La sección de
+opiniones incluye fragmentos de reseñas públicas de Google y enlaza al perfil
+para consultar las reseñas completas. Los botones de reserva y consultas
+abren WhatsApp.
 
 La dirección y el horario publicados corresponden a la información disponible
 en el perfil público de Google del estudio. Verifica los datos antes de
 publicar cambios.
+
+## SEO local e imágenes
+
+Astro genera metadatos canonical y Open Graph/Twitter, una tarjeta de vista
+previa de 1200 × 630 y datos estructurados `BeautySalon` con la dirección,
+teléfono, ubicación y horario público del estudio. En Vercel, Astro toma el
+dominio de producción de las variables del sistema. En otro hosting, configura
+`SITE_URL` con la URL pública completa, por ejemplo `https://tudominio.com`.
+
+Las imágenes de la galería están en `src/assets/` y se procesan con el
+componente `<Picture />` de Astro para generar AVIF, WebP y varios tamaños
+responsivos al compilar. La imagen para redes se mantiene en `public/og-image.svg`
+y su versión PNG en `public/og-image.png`.
 
 ## Vercel Speed Insights
 

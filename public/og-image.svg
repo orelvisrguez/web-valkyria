@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#fbf8f4"/>
+  <path d="M760 0h440v630H760z" fill="#552130"/>
+  <path d="M784 26h390v578H784z" fill="none" stroke="#bd9161" stroke-width="1"/>
+  <circle cx="955" cy="300" r="127" fill="none" stroke="#bd9161" stroke-width="1.5"/>
+  <circle cx="955" cy="300" r="111" fill="none" stroke="#f3d9b8" stroke-opacity=".4"/>
+  <text x="955" y="338" fill="#f3d9b8" font-family="Georgia,serif" font-size="128" font-style="italic" text-anchor="middle">V</text>
+  <path d="M955 127v25m0 296v25m-173-173h25m296 0h25" stroke="#bd9161" stroke-width="2"/>
+  <circle cx="85" cy="91" r="29" fill="none" stroke="#bd9161" stroke-width="1.5"/>
+  <text x="85" y="101" fill="#792c42" font-family="Georgia,serif" font-size="34" font-style="italic" text-anchor="middle">V</text>
+  <text x="132" y="89" fill="#302326" font-family="Georgia,serif" font-size="27">Valkyrias</text>
+  <text x="133" y="112" fill="#76686a" font-family="Arial,sans-serif" font-size="10" letter-spacing="4">NAILS STUDIOS</text>
+  <path d="M85 210h39" stroke="#bd9161" stroke-width="1"/>
+  <text x="85" y="199" fill="#792c42" font-family="Arial,sans-serif" font-size="12" font-weight="700" letter-spacing="4">MANICURA · CABALLITO</text>
+  <text x="82" y="310" fill="#302326" font-family="Georgia,serif" font-size="70">Manos que hablan</text>
+  <text x="83" y="398" fill="#792c42" font-family="Georgia,serif" font-size="79" font-style="italic">de vos.</text>
+  <path d="M85 447h510" stroke="#e6ddd6" stroke-width="1"/>
+  <text x="85" y="490" fill="#76686a" font-family="Arial,sans-serif" font-size="19">Tu momento de cuidado en Caballito, Buenos Aires.</text>
+  <text x="955" y="489" fill="#f3d9b8" font-family="Arial,sans-serif" font-size="12" letter-spacing="4" text-anchor="middle">UN RATITO PARA VOS</text>
+  <text x="955" y="530" fill="#bd9161" font-family="Georgia,serif" font-size="24" text-anchor="middle">✳</text>
+</svg>

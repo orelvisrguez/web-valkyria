@@ -4,6 +4,7 @@ node_modules/
 # Astro build output and generated files
 dist/
 .astro/
+.vercel/
 
 # Local environment and editor files
 .env

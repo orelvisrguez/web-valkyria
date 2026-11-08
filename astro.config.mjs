@@ -1,4 +1,5 @@
 import { defineConfig } from "astro/config";
+import vercel from "@astrojs/vercel";
 
 const deploymentHost =
   process.env.SITE_URL ??
@@ -13,5 +14,7 @@ const site = deploymentHost
   : undefined;
 
 export default defineConfig({
+  output: "server",
+  adapter: vercel(),
   ...(site ? { site } : {}),
 });

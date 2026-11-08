@@ -1,0 +1,410 @@
+---
+const days = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+];
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#fbf8f4" />
+    <title>Administración | Valkyria Nail Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="admin-shell">
+      <header class="admin-header">
+        <a class="brand" href="/" aria-label="Valkyria Nail Studio, inicio">
+          <span class="brand-mark" aria-hidden="true">V</span>
+          <span class="brand-name">Valkyria <small>Nail Studio</small></span>
+        </a>
+        <a class="back-link" href="/">Volver al sitio <span aria-hidden="true">↗</span></a>
+      </header>
+
+      <section class="login-panel panel" id="login-panel" aria-labelledby="login-title">
+        <p class="eyebrow">ACCESO PRIVADO</p>
+        <h1 id="login-title">Panel <em>administrativo.</em></h1>
+        <p class="intro">Ingresá con las credenciales de administración del estudio.</p>
+        <form id="login-form">
+          <label>
+            Usuario
+            <input name="username" type="text" autocomplete="username" required maxlength="120" />
+          </label>
+          <label>
+            Contraseña
+            <input name="password" type="password" autocomplete="current-password" required maxlength="256" />
+          </label>
+          <button class="button" type="submit">Iniciar sesión</button>
+        </form>
+        <p class="status" id="login-status" role="status" aria-live="polite"></p>
+      </section>
+
+      <section class="dashboard" id="dashboard" hidden>
+        <div class="dashboard-heading">
+          <div>
+            <p class="eyebrow">GESTIÓN DEL ESTUDIO</p>
+            <h1>Hola, <em>Susana.</em></h1>
+            <p class="intro">Los cambios se publican en el sitio al guardarlos.</p>
+          </div>
+          <button class="secondary-button" id="logout-button" type="button">Cerrar sesión</button>
+        </div>
+
+        <form id="content-form">
+          <section class="panel editor-section" aria-labelledby="services-title">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">OFERTA DEL ESTUDIO</p>
+                <h2 id="services-title">Servicios y precios</h2>
+              </div>
+              <button class="secondary-button" id="add-service" type="button">Agregar servicio</button>
+            </div>
+            <p class="hint">El precio se muestra tal como lo escribas, por ejemplo “Desde $12.000” o “Consultar”.</p>
+            <div class="editor-list" id="services-list"></div>
+          </section>
+
+          <section class="panel editor-section" aria-labelledby="hours-title">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">ATENCIÓN CON TURNO</p>
+                <h2 id="hours-title">Horarios de trabajo</h2>
+              </div>
+              <button class="secondary-button" id="add-hours" type="button">Agregar horario</button>
+            </div>
+            <p class="hint">Podés agregar más de un bloque horario para el mismo día. Eliminá una fila para quitar ese horario.</p>
+            <div class="editor-list" id="hours-list"></div>
+          </section>
+
+          <section class="panel editor-section" aria-labelledby="announcement-title">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">MENSAJE DESTACADO</p>
+                <h2 id="announcement-title">Barra de anuncios</h2>
+              </div>
+              <label class="toggle">
+                <input id="announcement-active" type="checkbox" />
+                <span>Visible</span>
+              </label>
+            </div>
+            <label>
+              Mensaje
+              <input id="announcement-message" type="text" maxlength="180" placeholder="Ej.: ¡Nuevos diseños de temporada!" />
+            </label>
+            <label>
+              Enlace opcional (HTTPS)
+              <input id="announcement-href" type="url" maxlength="500" placeholder="https://..." />
+            </label>
+          </section>
+
+          <div class="save-row">
+            <p class="status" id="save-status" role="status" aria-live="polite"></p>
+            <button class="button" id="save-button" type="submit">Guardar cambios</button>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <template id="service-template">
+      <article class="editor-row service-row">
+        <label>Servicio<input data-field="title" type="text" maxlength="80" required /></label>
+        <label>Descripción<input data-field="description" type="text" maxlength="300" /></label>
+        <label>Precio<input data-field="price" type="text" maxlength="40" required /></label>
+        <button class="remove-button" type="button" data-remove aria-label="Eliminar servicio">Eliminar</button>
+      </article>
+    </template>
+
+    <template id="hours-template">
+      <article class="editor-row hours-row">
+        <label>Día
+          <select data-field="day">
+            {days.map((day, index) => <option value={index}>{day}</option>)}
+          </select>
+        </label>
+        <label>Desde<input data-field="opens" type="time" required /></label>
+        <label>Hasta<input data-field="closes" type="time" required /></label>
+        <button class="remove-button" type="button" data-remove aria-label="Eliminar horario">Eliminar</button>
+      </article>
+    </template>
+
+    <script>
+      type Service = {
+        id: string;
+        title: string;
+        description: string;
+        price: string;
+      };
+      type WorkingHour = {
+        id: string;
+        day: number;
+        opens: string;
+        closes: string;
+      };
+      type Content = {
+        services: Service[];
+        workingHours: WorkingHour[];
+        announcement: { active: boolean; message: string; href: string };
+      };
+
+      const loginPanel = document.querySelector<HTMLElement>("#login-panel")!;
+      const dashboard = document.querySelector<HTMLElement>("#dashboard")!;
+      const loginForm = document.querySelector<HTMLFormElement>("#login-form")!;
+      const loginStatus = document.querySelector<HTMLElement>("#login-status")!;
+      const contentForm = document.querySelector<HTMLFormElement>("#content-form")!;
+      const saveStatus = document.querySelector<HTMLElement>("#save-status")!;
+      const saveButton = document.querySelector<HTMLButtonElement>("#save-button")!;
+      const servicesList = document.querySelector<HTMLElement>("#services-list")!;
+      const hoursList = document.querySelector<HTMLElement>("#hours-list")!;
+      const serviceTemplate = document.querySelector<HTMLTemplateElement>("#service-template")!;
+      const hoursTemplate = document.querySelector<HTMLTemplateElement>("#hours-template")!;
+      const announcementActive = document.querySelector<HTMLInputElement>("#announcement-active")!;
+      const announcementMessage = document.querySelector<HTMLInputElement>("#announcement-message")!;
+      const announcementHref = document.querySelector<HTMLInputElement>("#announcement-href")!;
+      const newId = () => crypto.randomUUID();
+
+      function setStatus(element: HTMLElement, message: string, isError = false) {
+        element.textContent = message;
+        element.classList.toggle("error", isError);
+      }
+
+      async function responseError(response: Response): Promise<string> {
+        const body = (await response.json().catch(() => ({}))) as { error?: string };
+        return body.error ?? "Ocurrió un error. Volvé a intentarlo.";
+      }
+
+      function appendService(service: Service) {
+        const row = serviceTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
+        row.dataset.id = service.id;
+        row.querySelector<HTMLInputElement>('[data-field="title"]')!.value = service.title;
+        row.querySelector<HTMLInputElement>('[data-field="description"]')!.value = service.description;
+        row.querySelector<HTMLInputElement>('[data-field="price"]')!.value = service.price;
+        servicesList.append(row);
+      }
+
+      function appendHours(hour: WorkingHour) {
+        const row = hoursTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
+        row.dataset.id = hour.id;
+        row.querySelector<HTMLSelectElement>('[data-field="day"]')!.value = String(hour.day);
+        row.querySelector<HTMLInputElement>('[data-field="opens"]')!.value = hour.opens;
+        row.querySelector<HTMLInputElement>('[data-field="closes"]')!.value = hour.closes;
+        hoursList.append(row);
+      }
+
+      function displayContent(content: Content) {
+        servicesList.replaceChildren();
+        hoursList.replaceChildren();
+        content.services.forEach(appendService);
+        content.workingHours.forEach(appendHours);
+        announcementActive.checked = content.announcement.active;
+        announcementMessage.value = content.announcement.message;
+        announcementHref.value = content.announcement.href;
+        loginPanel.hidden = true;
+        dashboard.hidden = false;
+      }
+
+      async function loadContent() {
+        const response = await fetch("/api/admin/content", { credentials: "same-origin" });
+        if (!response.ok) return false;
+        displayContent((await response.json()) as Content);
+        return true;
+      }
+
+      loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const submitButton = loginForm.querySelector<HTMLButtonElement>("button")!;
+        submitButton.disabled = true;
+        setStatus(loginStatus, "Verificando acceso…");
+        try {
+          const form = new FormData(loginForm);
+          const response = await fetch("/api/admin/login", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              username: form.get("username"),
+              password: form.get("password"),
+            }),
+          });
+          if (!response.ok) throw new Error(await responseError(response));
+          loginForm.reset();
+          if (!(await loadContent())) throw new Error("No se pudo cargar el panel.");
+        } catch (error) {
+          setStatus(
+            loginStatus,
+            error instanceof Error ? error.message : "No se pudo iniciar sesión.",
+            true,
+          );
+        } finally {
+          submitButton.disabled = false;
+        }
+      });
+
+      document.querySelector<HTMLButtonElement>("#add-service")!.addEventListener("click", () => {
+        appendService({ id: newId(), title: "", description: "", price: "Consultar" });
+        servicesList.lastElementChild?.querySelector<HTMLInputElement>("input")?.focus();
+      });
+
+      document.querySelector<HTMLButtonElement>("#add-hours")!.addEventListener("click", () => {
+        appendHours({ id: newId(), day: 6, opens: "10:00", closes: "20:00" });
+      });
+
+      for (const list of [servicesList, hoursList]) {
+        list.addEventListener("click", (event) => {
+          const target = event.target;
+          if (target instanceof Element && target.closest("[data-remove]")) {
+            target.closest(".editor-row")?.remove();
+          }
+        });
+      }
+
+      contentForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        saveButton.disabled = true;
+        setStatus(saveStatus, "Guardando cambios…");
+        try {
+          const services = Array.from(servicesList.querySelectorAll<HTMLElement>(".service-row")).map((row) => ({
+            id: row.dataset.id ?? newId(),
+            title: row.querySelector<HTMLInputElement>('[data-field="title"]')!.value,
+            description: row.querySelector<HTMLInputElement>('[data-field="description"]')!.value,
+            price: row.querySelector<HTMLInputElement>('[data-field="price"]')!.value,
+          }));
+          const workingHours = Array.from(hoursList.querySelectorAll<HTMLElement>(".hours-row")).map((row) => ({
+            id: row.dataset.id ?? newId(),
+            day: Number(row.querySelector<HTMLSelectElement>('[data-field="day"]')!.value),
+            opens: row.querySelector<HTMLInputElement>('[data-field="opens"]')!.value,
+            closes: row.querySelector<HTMLInputElement>('[data-field="closes"]')!.value,
+          }));
+          const response = await fetch("/api/admin/content", {
+            method: "PUT",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              services,
+              workingHours,
+              announcement: {
+                active: announcementActive.checked,
+                message: announcementMessage.value,
+                href: announcementHref.value,
+              },
+            }),
+          });
+          if (!response.ok) throw new Error(await responseError(response));
+          setStatus(saveStatus, "Cambios guardados y publicados.");
+        } catch (error) {
+          setStatus(
+            saveStatus,
+            error instanceof Error ? error.message : "No se pudieron guardar los cambios.",
+            true,
+          );
+        } finally {
+          saveButton.disabled = false;
+        }
+      });
+
+      document.querySelector<HTMLButtonElement>("#logout-button")!.addEventListener("click", async () => {
+        try {
+          const response = await fetch("/api/admin/logout", {
+            method: "POST",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: "{}",
+          });
+          if (!response.ok) throw new Error(await responseError(response));
+          dashboard.hidden = true;
+          loginPanel.hidden = false;
+          setStatus(loginStatus, "Sesión cerrada.");
+        } catch (error) {
+          setStatus(
+            saveStatus,
+            error instanceof Error ? error.message : "No se pudo cerrar la sesión.",
+            true,
+          );
+        }
+      });
+
+      loadContent().catch(() => {
+        setStatus(loginStatus, "No se pudo verificar la sesión.", true);
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  :root { --ink: #302326; --muted: #76686a; --paper: #fbf8f4; --rose: #792c42; --gold: #bd9161; --line: #e6ddd6; --serif: "Playfair Display", Georgia, serif; --sans: "DM Sans", Arial, sans-serif; }
+  * { box-sizing: border-box; }
+  body { min-height: 100vh; margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+  button, input, select { font: inherit; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  a { color: inherit; text-decoration: none; }
+  .admin-shell { width: min(940px, calc(100% - 40px)); margin: 0 auto; padding-bottom: 70px; }
+  .admin-header, .dashboard-heading, .section-title, .save-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+  .admin-header { min-height: 90px; border-bottom: 1px solid var(--line); }
+  .brand { display: inline-flex; align-items: center; gap: 11px; }
+  .brand-mark { display: grid; width: 39px; height: 39px; place-items: center; border: 1px solid var(--gold); border-radius: 50%; color: var(--rose); font-family: var(--serif); font-size: 25px; font-style: italic; line-height: 1; }
+  .brand-name { display: flex; flex-direction: column; font-family: var(--serif); font-size: 20px; font-weight: 600; line-height: .96; }
+  .brand-name small { margin-top: 5px; color: var(--muted); font-family: var(--sans); font-size: 9px; font-weight: 500; letter-spacing: 2.8px; text-transform: uppercase; }
+  .back-link { color: var(--rose); font-size: 13px; font-weight: 600; }
+  .panel { padding: 28px; border: 1px solid var(--line); background: rgba(255,255,255,.62); }
+  .login-panel { width: min(480px, 100%); margin: 72px auto; }
+  .eyebrow { margin: 0 0 12px; color: var(--rose); font-size: 10px; font-weight: 700; letter-spacing: 1.8px; }
+  h1, h2, p { margin-top: 0; }
+  h1 { margin-bottom: 12px; font-family: var(--serif); font-size: clamp(32px, 5vw, 46px); font-weight: 500; }
+  h1 em { color: var(--rose); }
+  h2 { margin: 0; font-family: var(--serif); font-size: 27px; font-weight: 500; }
+  .intro, .hint { color: var(--muted); font-size: 14px; line-height: 1.7; }
+  .login-panel form, .editor-section > label { display: grid; gap: 16px; }
+  label { display: grid; gap: 7px; color: var(--ink); font-size: 12px; font-weight: 600; }
+  input, select { width: 100%; min-height: 43px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 0; background: white; color: var(--ink); font-size: 14px; }
+  input:focus, select:focus { outline: 2px solid rgba(121,44,66,.3); outline-offset: 1px; }
+  .button, .secondary-button { min-height: 44px; padding: 0 18px; border: 1px solid var(--rose); cursor: pointer; font-size: 12px; font-weight: 700; }
+  .button { background: var(--rose); color: white; }
+  .button:hover { background: #552130; }
+  .secondary-button { background: transparent; color: var(--rose); }
+  button:disabled { cursor: wait; opacity: .65; }
+  .status { min-height: 20px; margin: 12px 0 0; color: #356447; font-size: 13px; }
+  .status.error { color: #a32736; }
+  .dashboard { padding-top: 50px; }
+  .dashboard-heading { margin-bottom: 28px; }
+  .dashboard-heading .intro { margin-bottom: 0; }
+  .editor-section { margin-bottom: 18px; }
+  .section-title { margin-bottom: 12px; }
+  .section-title .eyebrow { margin-bottom: 7px; }
+  .hint { margin-bottom: 18px; font-size: 12px; }
+  .editor-list { display: grid; gap: 12px; }
+  .editor-row { display: grid; grid-template-columns: 1fr 1.5fr .8fr auto; align-items: end; gap: 12px; padding: 14px; border: 1px solid var(--line); background: white; }
+  .hours-row { grid-template-columns: 1.2fr 1fr 1fr auto; }
+  .remove-button { min-height: 43px; padding: 0 11px; border: 1px solid var(--line); background: white; color: #8d3345; cursor: pointer; font-size: 11px; font-weight: 600; }
+  .toggle { display: flex; align-items: center; gap: 8px; }
+  .toggle input { width: 18px; min-height: 18px; accent-color: var(--rose); }
+  .save-row { position: sticky; bottom: 0; z-index: 3; margin-top: 20px; padding: 14px 0; background: var(--paper); }
+  .save-row .status { margin: 0; }
+  [hidden] { display: none !important; }
+  @media (max-width: 700px) {
+    .admin-shell { width: min(100% - 28px, 560px); }
+    .admin-header { min-height: 76px; }
+    .panel { padding: 20px 16px; }
+    .dashboard { padding-top: 32px; }
+    .dashboard-heading { align-items: flex-start; }
+    .dashboard-heading .secondary-button { flex: 0 0 auto; padding-inline: 10px; }
+    .section-title { align-items: flex-start; }
+    .section-title .secondary-button { padding-inline: 10px; }
+    .editor-row, .hours-row { grid-template-columns: 1fr 1fr; }
+    .editor-row label:nth-child(2) { grid-column: 1 / -1; }
+    .remove-button { justify-self: start; }
+    .save-row { align-items: flex-start; }
+    .save-row .button { flex: 0 0 auto; padding-inline: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; } }
+</style>

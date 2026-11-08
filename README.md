@@ -1,8 +1,9 @@
-# Valkyrias Nails Studios
+# Valkyria Nail Studio
 
-Landing page estática para Valkyrias Nails Studios, estudio de manicura en
-Caballito, Buenos Aires. Está desarrollada con [Astro](https://astro.build/)
-y lista para publicar en servicios de hosting estático.
+Sitio web de Valkyria Nail Studio, estudio de manicura en Caballito, Buenos
+Aires. Está desarrollado con [Astro](https://astro.build/) y [Turso
+(libSQL)](https://turso.tech/). El sitio público muestra servicios, precios,
+horarios y anuncios administrables desde un panel privado.
 
 ## Requisitos
 
@@ -13,51 +14,108 @@ y lista para publicar en servicios de hosting estático.
 
 ```bash
 npm ci
+```
+
+Antes de iniciar la aplicación, configura las variables requeridas en la
+sección **Base de datos y panel administrativo**. En desarrollo, copia
+`.env.example` a `.env` y completa la URL y el token nuevo de Turso. El servidor
+carga ese archivo automáticamente. No pegues secretos en el código ni los
+subas al repositorio.
+
+```powershell
+Copy-Item .env.example .env
 npm run dev
 ```
 
-Astro muestra en la terminal la dirección local para abrir el sitio.
+Si aparece `Faltan TURSO_DATABASE_URL y TURSO_AUTH_TOKEN`, comprueba que `.env`
+esté en la raíz del proyecto y que ambas variables tengan valores válidos.
 
-## Compilar y previsualizar
+## Base de datos y panel administrativo
+
+La aplicación necesita renderizado en servidor (no hosting estático), ya que
+consulta Turso al servir las páginas y protege las rutas del panel. Para
+producción está configurada con el adaptador oficial de Astro para Vercel.
+
+1. Crea una base Turso y un token de acceso de lectura/escritura desde el panel
+   o la CLI oficial. **No reutilices el token que se compartió en una
+   conversación: revócalo y genera uno nuevo.**
+2. Copia `.env.example` a `.env` y completa `TURSO_DATABASE_URL` y
+   `TURSO_AUTH_TOKEN`. En producción, configura esas variables en el gestor de
+   secretos del hosting; no subas `.env` al repositorio.
+3. Genera un hash para una contraseña de al menos 14 caracteres, escribiéndola
+   en la terminal sin que se muestre:
+
+   ```bash
+   node scripts/hash-admin-password.mjs
+   ```
+
+   Guarda el valor impreso en `ADMIN_PASSWORD_HASH` y define `ADMIN_USERNAME`.
+   Genera también `SESSION_SECRET` con al menos 32 bytes aleatorios; por
+   ejemplo, en PowerShell:
+
+   ```powershell
+   [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+   ```
+
+4. Al primer acceso, la aplicación crea las tablas de servicios, horarios,
+   anuncios y control de intentos, e inicializa los servicios y el horario
+   público ya existentes. Los precios iniciales quedan como “Consultar” para no
+   publicar montos no confirmados.
+5. Inicia sesión en `/admin`. Los cambios guardados se publican en el sitio.
+
+El acceso usa cookies `HttpOnly`, `SameSite=Strict`, sesiones firmadas con
+expiración de 8 horas, protección de origen, limitación de intentos de inicio
+de sesión almacenada en Turso y contraseñas verificadas con scrypt. Cambiar
+`SESSION_SECRET` invalida las sesiones existentes.
+
+## Compilar y ejecutar
 
 ```bash
 npm run build
 npm run preview
 ```
 
-La versión lista para publicar se genera en `dist/`. No subas `dist/`,
-`node_modules/` ni `.astro/` al repositorio: Git los ignora y el sitio se
-reconstruye con `npm run build`.
+Para desplegar en Vercel, configura allí las variables requeridas antes de
+publicar una nueva versión. No subas `dist/`, `node_modules/` ni `.astro/` al
+repositorio: Git los ignora y Vercel reconstruye el sitio con `npm run build`.
 
-## Publicar en GitHub
+## Publicar en Vercel
 
-1. Crea en GitHub un repositorio **vacío**, sin README, licencia ni archivos
-   iniciales.
-2. Desde esta carpeta, agrega la dirección de ese repositorio y sube la rama
-   `main`:
+El proyecto debe estar importado en Vercel desde GitHub y usar la configuración
+automática de Astro. Antes del primer despliegue, agrega en **Settings →
+Environment Variables** (para Production y Preview, según corresponda):
 
-   ```bash
-   git remote add origin https://github.com/TU-USUARIO/TU-REPOSITORIO.git
-   git push -u origin main
-   ```
+- `TURSO_DATABASE_URL`
+- `TURSO_AUTH_TOKEN`
+- `ADMIN_USERNAME`
+- `ADMIN_PASSWORD_HASH`
+- `SESSION_SECRET`
+- `SITE_URL` (URL pública del sitio)
+
+No uses los valores de ejemplo como secretos ni subas `.env` al repositorio.
+Una vez configuradas las variables, los cambios enviados a `main` pueden
+desplegarse automáticamente; también puedes iniciar un despliegue desde Vercel.
 
 El proyecto incluye `package-lock.json`; usa `npm ci` para instalar las mismas
 versiones de dependencias en cada entorno.
 
 ## Contenido
 
-La página, sus servicios, enlaces sociales, horarios e imágenes se configuran
-en `src/pages/index.astro`. La galería permite filtrar ideas de inspiración
-por categoría; sus fotografías de Unsplash no representan trabajos del estudio.
-Reemplázalas por fotos propias cuando estén disponibles. La sección de
+La página, sus enlaces sociales e imágenes se configuran en
+`src/pages/index.astro`; los servicios, sus precios, los horarios y la barra de
+anuncios se editan en `/admin`. La galería pública muestra trabajos reales del
+estudio mediante imágenes WebP en `public/images/`; se conservan también las
+fotos originales. La sección del estudio muestra fotos reales de Susana y del
+local. La sección de
 opiniones incluye fragmentos de reseñas públicas de Google y enlaza al perfil
 para consultar las reseñas completas. La sección sobre el estudio presenta a
 Susana Delgado y sus más de diez años de experiencia, y la navegación enlaza
 directamente a esa sección y a la de cuidado e higiene. Las consultas sobre
-higiene, uso de autoclave, señas y demoras abren WhatsApp porque esos protocolos
-y condiciones deben confirmarse con el estudio antes de publicarse. La foto
-real del espacio también queda pendiente de recibir una imagen del estudio. Los
-botones de reserva y consultas abren WhatsApp.
+higiene y las condiciones de los turnos publican las políticas confirmadas por
+el estudio: equipos esterilizados, materiales descartables, seña no
+reembolsable del 30% al solicitar el turno, cancelación con 24 horas de
+anticipación y tolerancia de hasta 30 minutos. Se acepta efectivo,
+transferencia y Mercado Pago. Los botones de reserva y consultas abren WhatsApp.
 
 La dirección y el horario publicados corresponden a la información disponible
 en el perfil público de Google del estudio. Verifica los datos antes de
@@ -71,10 +129,12 @@ teléfono, ubicación y horario público del estudio. En Vercel, Astro toma el
 dominio de producción de las variables del sistema. En otro hosting, configura
 `SITE_URL` con la URL pública completa, por ejemplo `https://tudominio.com`.
 
-Las imágenes de la galería están en `src/assets/` y se procesan con el
-componente `<Picture />` de Astro para generar AVIF, WebP y varios tamaños
-responsivos al compilar. La imagen para redes se mantiene en `public/og-image.svg`
-y su versión PNG en `public/og-image.png`.
+La foto principal está en `src/assets/` y Astro la procesa para generar AVIF,
+WebP y varios tamaños responsivos al compilar. Las fotos reales de la galería
+están en `public/images/` como WebP. La vista previa al compartir en WhatsApp y
+otras redes usa una foto real de manicura en `public/images/og-nails.jpg` (JPEG
+de 1200 × 630). El isotipo y los recursos anteriores para redes siguen
+disponibles en `public/og-image.svg` y `public/og-image.png`.
 
 ## Vercel Speed Insights
 
@@ -87,5 +147,5 @@ recibir métricas de rendimiento:
    empezar a generar datos.
 
 Speed Insights no recopila métricas durante el desarrollo local. La integración
-se encuentra en `src/pages/index.astro`; al ser un sitio Astro estático, no
-requiere configurar el adaptador de Vercel.
+se encuentra en `src/pages/index.astro`. El sitio se despliega en Vercel con el
+adaptador oficial de Astro.

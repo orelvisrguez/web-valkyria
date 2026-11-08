@@ -2,12 +2,33 @@
 import SpeedInsights from "@vercel/speed-insights/astro";
 import { Picture } from "astro:assets";
 import heroNailsImage from "../assets/hero-nails.jpg";
-import nailArtImage from "../assets/nail-art.jpg";
-import nailColorImage from "../assets/nail-color.jpg";
+import { readSiteContent } from "../lib/db";
+
+export const prerender = false;
+
+const { services, workingHours, announcement } = await readSiteContent();
+const dayNames = [
+  "Domingo",
+  "Lunes",
+  "Martes",
+  "Miércoles",
+  "Jueves",
+  "Viernes",
+  "Sábado",
+];
+const schemaDayNames = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 const instagram = "https://www.instagram.com/valkyriasnailstudios/";
 const whatsapp =
-  "https://wa.me/541176290269?text=Hola%2C%20quiero%20reservar%20un%20turno%20en%20Valkyrias%20Nails%20Studios";
+  "https://wa.me/541176290269?text=Hola%2C%20quiero%20reservar%20un%20turno%20en%20Valkyria%20Nail%20Studio";
 const facebook = "https://www.facebook.com/valkyriasnailstudios/";
 const tiktok = "https://www.tiktok.com/@valkyriasnailstudios";
 const googleBusiness =
@@ -18,15 +39,16 @@ const canonicalUrl = Astro.site
   ? new URL(Astro.url.pathname, Astro.site).href
   : undefined;
 const openGraphImageUrl = Astro.site
-  ? new URL("/og-image.png", Astro.site).href
+  ? new URL("/images/og-nails.jpg", Astro.site).href
   : undefined;
 
 const localBusinessSchema = JSON.stringify({
   "@context": "https://schema.org",
-  "@type": "BeautySalon",
-  name: "Valkyrias Nails Studios",
+  "@type": ["BeautySalon", "LocalBusiness"],
+  "@id": canonicalUrl ? `${canonicalUrl}#business` : undefined,
+  name: "Valkyria Nail Studio",
   description:
-    "Salón de manicura en Caballito, Buenos Aires. Un espacio para embellecer tus manos y llevarte gratis una charla con nosotras.",
+    "Salón de manicura en Caballito, Buenos Aires. Un espacio para embellecer tus manos, elegir tu próximo diseño y disfrutar de una buena charla.",
   url: canonicalUrl,
   image: openGraphImageUrl,
   telephone: "+541176290269",
@@ -43,14 +65,12 @@ const localBusinessSchema = JSON.stringify({
     latitude: -34.62176125,
     longitude: -58.4286208,
   },
-  openingHoursSpecification: [
-    {
+  openingHoursSpecification: workingHours.map((hours) => ({
       "@type": "OpeningHoursSpecification",
-      dayOfWeek: "https://schema.org/Saturday",
-      opens: "10:00",
-      closes: "20:00",
-    },
-  ],
+      dayOfWeek: `https://schema.org/${schemaDayNames[hours.day]}`,
+      opens: hours.opens,
+      closes: hours.closes,
+  })),
   areaServed: {
     "@type": "Place",
     name: "Caballito, Buenos Aires",
@@ -61,56 +81,31 @@ const localBusinessSchema = JSON.stringify({
 
 const inspirationImages = [
   {
-    src: heroNailsImage,
-    alt: "Manicura con uñas oscuras y detalles carey",
-    title: "Clásica, siempre",
+    src: "/images/IMG-20220218-WA0004.webp",
+    alt: "Uñas en tonos turquesa con detalles decorativos",
+    title: "Turquesa y detalles",
     style: "inspiration-card--large",
-    categories: ["nail-art", "esculpidas"],
+    width: 1079,
+    height: 1494,
   },
   {
-    src: nailArtImage,
-    alt: "Detalle de uñas con diseño de manicura",
-    title: "Detalles que enamoran",
+    src: "/images/IMG-20220218-WA0008.webp",
+    alt: "Manicura en tonos oscuros con detalles decorativos",
+    title: "Diseño en negro",
     style: "",
-    categories: ["nail-art", "semipermanente"],
+    width: 1050,
+    height: 1400,
   },
   {
-    src: nailColorImage,
-    alt: "Uñas esmaltadas en tonos delicados",
-    title: "Tu próximo color",
+    src: "/images/IMG-20220218-WA0017.webp",
+    alt: "Manicura en tonos claros con detalles sutiles",
+    title: "Tonos suaves",
     style: "",
-    categories: ["kapping", "esculpidas"],
+    width: 1291,
+    height: 1600,
   },
 ];
 
-const inspirationFilters = [
-  { id: "all", label: "Todas las ideas" },
-  { id: "nail-art", label: "Nail art" },
-  { id: "kapping", label: "Kapping" },
-  { id: "semipermanente", label: "Semipermanente" },
-  { id: "esculpidas", label: "Esculpidas" },
-];
-
-const services = [
-  {
-    number: "01",
-    title: "Manicura",
-    description:
-      "Un momento para vos, con el cuidado y los detalles que tus manos merecen.",
-  },
-  {
-    number: "02",
-    title: "Uñas esculpidas",
-    description:
-      "Acrílico, gel o polygel: elegí tu técnica y creamos juntas el estilo que buscás.",
-  },
-  {
-    number: "03",
-    title: "Diseños y calcos",
-    description:
-      "Un toque de color, un detalle sutil o algo completamente único. Vos inspirás.",
-  },
-];
 ---
 
 <!doctype html>
@@ -121,13 +116,13 @@ const services = [
     <meta name="theme-color" content="#fbf8f4" />
     <meta
       name="description"
-      content="Valkyrias Nails Studios: manicura, uñas esculpidas y diseños en Caballito, Buenos Aires. Encontranos en Acoyte 81."
+      content="Valkyria Nail Studio: manicura, uñas esculpidas y diseños en Caballito, Buenos Aires. Encontranos en Acoyte 81."
     />
-    <meta property="og:title" content="Valkyrias Nails Studios | Caballito" />
-    <meta property="og:site_name" content="Valkyrias Nails Studios" />
+    <meta property="og:title" content="Valkyria Nail Studio | Caballito" />
+    <meta property="og:site_name" content="Valkyria Nail Studio" />
     <meta
       property="og:description"
-      content="Manicura, uñas esculpidas y diseños en Caballito. Un espacio para vos y tus manos."
+      content="Manicura, uñas esculpidas y diseños reales en Caballito. Conocé Valkyria Nail Studio."
     />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_AR" />
@@ -138,23 +133,23 @@ const services = [
         <>
           <meta property="og:image" content={openGraphImageUrl} />
           <meta property="og:image:secure_url" content={openGraphImageUrl} />
-          <meta property="og:image:type" content="image/png" />
+          <meta property="og:image:type" content="image/jpeg" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           <meta
             property="og:image:alt"
-            content="Valkyrias Nails Studios, manicura en Caballito"
+            content="Trabajo de manicura con uñas rosas y detalles plateados realizado en Valkyria Nail Studio"
           />
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="Valkyrias Nails Studios | Caballito" />
+          <meta name="twitter:title" content="Valkyria Nail Studio | Caballito" />
           <meta
             name="twitter:description"
-            content="Manicura, uñas esculpidas y diseños en Caballito. Un espacio para vos y tus manos."
+            content="Manicura, uñas esculpidas y diseños reales en Caballito. Conocé Valkyria Nail Studio."
           />
           <meta name="twitter:image" content={openGraphImageUrl} />
           <meta
             name="twitter:image:alt"
-            content="Valkyrias Nails Studios, manicura en Caballito"
+            content="Trabajo de manicura con uñas rosas y detalles plateados realizado en Valkyria Nail Studio"
           />
         </>
       )
@@ -166,15 +161,28 @@ const services = [
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap"
       rel="stylesheet"
     />
-    <title>Valkyrias Nails Studios | Manicura en Caballito</title>
+    <title>Valkyria Nail Studio | Manicura en Caballito</title>
     <script type="application/ld+json" set:html={localBusinessSchema}></script>
   </head>
   <body>
     <div class="scroll-progress" aria-hidden="true"></div>
-    <header class="site-header">
-      <a class="brand" href="#inicio" aria-label="Valkyrias Nails Studios, inicio">
+    {
+      announcement.active && (
+        <aside class="announcement-bar" aria-label="Anuncio del estudio">
+          {announcement.href ? (
+            <a href={announcement.href} target="_blank" rel="noreferrer">
+              <span>{announcement.message}</span><span aria-hidden="true">↗</span>
+            </a>
+          ) : (
+            <p>{announcement.message}</p>
+          )}
+        </aside>
+      )
+    }
+    <header class="site-header" style={`top: ${announcement.active ? "40px" : "0"}`}>
+      <a class="brand" href="#inicio" aria-label="Valkyria Nail Studio, inicio">
         <span class="brand-mark" aria-hidden="true">V</span>
-        <span class="brand-name">Valkyrias <small>Nails Studios</small></span>
+        <span class="brand-name">Valkyria <small>Nail Studio</small></span>
       </a>
       <button
         class="menu-toggle"
@@ -204,7 +212,7 @@ const services = [
           <h1>Manos que hablan <em>de vos.</em></h1>
           <p class="hero-description">
             Un espacio para embellecer tus manos, elegir tu próximo diseño y
-            llevarte gratis una charla con nosotras.
+            disfrutar de una buena charla.
           </p>
           <div class="hero-actions">
             <a class="button button-dark" href={whatsapp} target="_blank" rel="noreferrer">
@@ -246,7 +254,7 @@ const services = [
         <a class="scroll-cue" href="#servicios"><span></span> DESLIZÁ PARA DESCUBRIR</a>
       </section>
 
-      <div class="ticker" aria-label="Valkyrias Nails Studios, un espacio para vos">
+      <div class="ticker" aria-label="Valkyria Nail Studio, un espacio para vos">
         <div class="ticker-track" aria-hidden="true">
           {
             Array.from({ length: 4 }).map(() => (
@@ -254,7 +262,7 @@ const services = [
               <i>✳</i>
               <span>Manos con personalidad</span>
               <i>✳</i>
-              <span>Tu momento Valkyrias</span>
+              <span>Tu momento Valkyria</span>
               <i>✳</i>
             ))
           }
@@ -274,14 +282,15 @@ const services = [
         </div>
         <div class="service-grid">
           {
-            services.map((service) => (
+            services.map((service, index) => (
               <article class="service-card reveal">
                 <div class="service-top">
-                  <span>{service.number}</span>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
                   <span class="service-flower" aria-hidden="true">✳</span>
                 </div>
                 <h3>{service.title}</h3>
                 <p>{service.description}</p>
+                <strong class="service-price">{service.price}</strong>
                 <a href={whatsapp} target="_blank" rel="noreferrer" aria-label={`Consultar por ${service.title}`}>
                   Consultanos <span aria-hidden="true">↗</span>
                 </a>
@@ -294,7 +303,7 @@ const services = [
       <section class="inspiration section-space" id="inspiracion">
         <div class="section-wrap">
           <div class="section-heading inspiration-heading reveal">
-            <p class="eyebrow"><span class="eyebrow-line"></span> TU PRÓXIMA IDEA</p>
+            <p class="eyebrow"><span class="eyebrow-line"></span> TRABAJOS DEL ESTUDIO</p>
             <div class="heading-row">
               <h2>Un color, una idea.<br /><em>Algo muy tuyo.</em></h2>
               <p class="section-intro">
@@ -303,39 +312,20 @@ const services = [
               </p>
             </div>
           </div>
-          <div class="inspiration-filters" role="group" aria-label="Filtrar ideas por categoría">
-            {
-              inspirationFilters.map((filter, index) => (
-                <button
-                  class="inspiration-filter"
-                  type="button"
-                  data-filter={filter.id}
-                  aria-pressed={index === 0 ? "true" : "false"}
-                >
-                  {filter.label}
-                </button>
-              ))
-            }
-          </div>
-          <p class="gallery-status" aria-live="polite"></p>
           <div class="inspiration-grid">
             {
               inspirationImages.map((image, index) => (
-                <figure
-                  class={`inspiration-card ${image.style} reveal`}
-                  data-categories={image.categories.join(" ")}
-                >
-                  <Picture
+                <figure class={`inspiration-card ${image.style} reveal`}>
+                  <img
                     src={image.src}
                     alt={image.alt}
-                    formats={["avif", "webp"]}
-                    widths={[360, 640, 960]}
-                    sizes="(max-width: 680px) calc((100vw - 50px) / 2), (max-width: 900px) 30vw, 360px"
+                    width={image.width}
+                    height={image.height}
                     loading="lazy"
                     decoding="async"
                   />
                   <figcaption>
-                    <span>IDEA 0{index + 1}</span>
+                    <span>TRABAJO 0{index + 1}</span>
                     <strong>{image.title}</strong>
                   </figcaption>
                 </figure>
@@ -344,8 +334,8 @@ const services = [
           </div>
           <div class="inspiration-footer">
             <p class="inspiration-note">
-              Estas fotos son inspiración y no representan trabajos del estudio.
-              Mirá diseños reales en nuestras redes.
+              Una selección de trabajos realizados en el estudio. Cada diseño
+              se adapta a tu estilo.
             </p>
             <a class="text-link" href={instagram} target="_blank" rel="noreferrer">
               Ver Instagram <span aria-hidden="true">↗</span>
@@ -356,24 +346,31 @@ const services = [
 
       <section class="about section-wrap section-space" id="nosotras">
         <div class="founder-card reveal">
-          <div class="founder-card-monogram" aria-hidden="true">S</div>
+          <img
+            class="founder-card-photo"
+            src="/images/susana.webp"
+            alt="Susana Delgado, fundadora y manicurista de Valkyria Nail Studio"
+            width="1200"
+            height="1600"
+            loading="lazy"
+            decoding="async"
+          />
           <span class="founder-card-overline">V · N · S</span>
           <span class="founder-card-caption">FUNDADORA & MANICURISTA</span>
           <strong>Susana<br /><em>Delgado</em></strong>
           <span class="founder-card-years">+10 <small>AÑOS DE EXPERIENCIA</small></span>
-          <span class="founder-card-note">UN OFICIO CON HISTORIA, HECHO CON AMOR.</span>
         </div>
         <div class="about-copy reveal">
           <p class="eyebrow"><span class="eyebrow-line"></span> SOBRE EL ESTUDIO</p>
           <h2>Más de diez años<br /><em>cuidando cada detalle.</em></h2>
           <p>
-            Soy Susana Delgado, fundadora de Valkyrias Nails Studios. Hace más
+            Soy Susana Delgado, fundadora de Valkyria Nail Studio. Hace más
             de diez años que me dedico al cuidado de las uñas, con la misma
             pasión por los detalles y por hacer que cada persona se sienta
             cómoda.
           </p>
           <p>
-            Creé Valkyrias como un espacio para embellecer tus manos y llevarte
+            Creé Valkyria Nail Studio como un espacio para embellecer tus manos y llevarte
             también algo que nos encanta compartir: una buena charla.
           </p>
           <a class="text-link" href={googleBusiness} target="_blank" rel="noreferrer">
@@ -384,8 +381,22 @@ const services = [
           </a>
           <div class="about-detail">
             <span class="about-detail-number">4,9<span>/5</span></span>
-            <span class="about-detail-copy">La experiencia Valkyrias<br />según nuestras clientas</span>
+            <span class="about-detail-copy">La experiencia Valkyria<br />según nuestras clientas</span>
           </div>
+          <figure class="studio-photo">
+            <img
+              src="/images/fondo.webp"
+              alt="Interior de Valkyria Nail Studio con la mesa de manicura y exhibición de esmaltes"
+              width="1200"
+              height="1600"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>
+              <span>NUESTRO ESPACIO</span>
+              <strong>Te esperamos en Caballito</strong>
+            </figcaption>
+          </figure>
         </div>
       </section>
 
@@ -396,9 +407,8 @@ const services = [
             <div class="heading-row">
               <h2>Tu tranquilidad<br /><em>también importa.</em></h2>
               <p class="section-intro">
-                Queremos que sepas qué esperar antes de venir. Consultanos por
-                WhatsApp para confirmar los detalles de higiene y las condiciones
-                de tu turno.
+                Conocé cómo cuidamos la higiene y organizamos cada turno antes
+                de visitarnos.
               </p>
             </div>
           </div>
@@ -408,39 +418,25 @@ const services = [
               <span class="care-icon" aria-hidden="true">✳</span>
               <h3>Higiene, sin dudas</h3>
               <p>
-                Antes de reservar, podés consultar cómo preparamos las
-                herramientas, cuáles son descartables y cuáles se esterilizan.
-                También confirmamos directamente si se utiliza autoclave; no
-                publicamos un protocolo sin verificarlo con el estudio.
+                Esterilizamos los equipos y usamos materiales descartables para
+                cuidar la higiene en cada servicio.
               </p>
-              <a href={whatsapp} target="_blank" rel="noreferrer">
-                Consultar por WhatsApp <span aria-hidden="true">↗</span>
-              </a>
             </article>
             <article class="care-card reveal">
               <span class="care-number">02</span>
               <span class="care-icon" aria-hidden="true">◷</span>
               <h3>Señas y cancelaciones</h3>
               <p>
-                Las condiciones de seña, cambios y cancelaciones se informan al
-                coordinar cada turno. Consultalas antes de reservar.
+                Al solicitar el turno, pedimos una seña del 30% que no es
+                reembolsable. Para cancelar, avisanos con 24 horas de
+                anticipación.
               </p>
-              <a href={whatsapp} target="_blank" rel="noreferrer">
-                Preguntar condiciones <span aria-hidden="true">↗</span>
-              </a>
             </article>
             <article class="care-card reveal">
               <span class="care-number">03</span>
               <span class="care-icon" aria-hidden="true">♡</span>
               <h3>¿Vas a llegar tarde?</h3>
-              <p>
-                Consultanos al reservar cuál es la tolerancia de demora y
-                avisanos por WhatsApp si necesitás reprogramar. Así podemos
-                contarte las opciones para tu horario.
-              </p>
-              <a href={whatsapp} target="_blank" rel="noreferrer">
-                Coordinar mi visita <span aria-hidden="true">↗</span>
-              </a>
+              <p>Contamos con una tolerancia de hasta 30 minutos.</p>
             </article>
           </div>
         </div>
@@ -506,28 +502,54 @@ const services = [
               <a href={directions} target="_blank" rel="noreferrer">Cómo llegar <span aria-hidden="true">↗</span></a>
             </div>
           </div>
-          <div class="visit-info">
-            <div class="visit-info-icon" aria-hidden="true">◷</div>
-            <div>
-              <strong>Sábados · 10:00 a 20:00</strong>
-              <span>Atención con turno</span>
-              <a href={whatsapp} target="_blank" rel="noreferrer">Consultá disponibilidad <span aria-hidden="true">↗</span></a>
+          <section class="schedule-card" aria-labelledby="schedule-title">
+            <div class="schedule-heading">
+              <span class="schedule-icon" aria-hidden="true">◷</span>
+              <div>
+                <h3 id="schedule-title">Horario de atención</h3>
+                <span>Solo con reserva previa</span>
+              </div>
+              <span class="schedule-status"><span></span> CON TURNO</span>
             </div>
-          </div>
+            <dl class="schedule-list">
+              {
+                workingHours.length > 0 ? (
+                  workingHours.map((hours) => (
+                    <div class="schedule-row">
+                      <dt>{dayNames[hours.day]}</dt>
+                      <dd>
+                        <time datetime={hours.opens}>{hours.opens}</time>
+                        <span aria-hidden="true">—</span>
+                        <time datetime={hours.closes}>{hours.closes}</time>
+                      </dd>
+                    </div>
+                  ))
+                ) : (
+                  <div class="schedule-row schedule-row--empty">
+                    <dt>Horarios a coordinar</dt>
+                    <dd>Consultanos por WhatsApp</dd>
+                  </div>
+                )
+              }
+            </dl>
+            <a class="schedule-link" href={whatsapp} target="_blank" rel="noreferrer">
+              Consultá disponibilidad <span aria-hidden="true">↗</span>
+            </a>
+          </section>
           <a class="button button-dark visit-button" href={whatsapp} target="_blank" rel="noreferrer">
             Reservá por WhatsApp <span aria-hidden="true">↗</span>
           </a>
         </div>
         <div class="map-card reveal">
           <iframe
-            title="Mapa de Valkyrias Nails Studios en Acoyte 81, Caballito"
+            title="Mapa de Valkyria Nail Studio en Acoyte 81, Caballito"
             src="https://maps.google.com/maps?q=Acoyte%2081%2C%20Caballito%2C%20Buenos%20Aires&z=15&output=embed"
             loading="lazy"
             referrerpolicy="no-referrer-when-downgrade"
           ></iframe>
           <a class="map-label" href={directions} target="_blank" rel="noreferrer">
             <span class="map-dot"></span>
-            <span><strong>Valkyrias Nails Studios</strong><small>Acoyte 81 · Caballito</small></span>
+            <span><strong>Valkyria Nail Studio</strong><small>Acoyte 81 · Caballito</small></span>
             <span aria-hidden="true">↗</span>
           </a>
         </div>
@@ -565,18 +587,19 @@ const services = [
             <details class="faq-item reveal">
               <summary>¿Piden seña? ¿Cómo es la política de cancelación?</summary>
               <p>
-                Las condiciones de seña, cambios y cancelaciones se confirman
-                al coordinar el turno. Consultalas por mensaje antes de
-                reservar por WhatsApp o Instagram.
+                Al solicitar el turno, pedimos una seña del 30% que no es
+                reembolsable. Para cancelar, avisanos con 24 horas de
+                anticipación.
               </p>
+            </details>
+            <details class="faq-item reveal">
+              <summary>¿Qué tolerancia hay si llego tarde?</summary>
+              <p>Contamos con una tolerancia de hasta 30 minutos.</p>
             </details>
             <details class="faq-item reveal">
               <summary>¿Qué medios de pago aceptan?</summary>
               <p>
-                El perfil del estudio informa tarjetas Visa, Mastercard,
-                American Express y Diners Club, además de pagos móviles NFC.
-                Para confirmar si aceptan efectivo, Mercado Pago o
-                transferencia, consultanos al reservar.
+                Aceptamos efectivo, transferencia y Mercado Pago.
               </p>
             </details>
           </div>
@@ -597,9 +620,9 @@ const services = [
 
     <footer class="site-footer">
       <div class="footer-main">
-        <a class="brand footer-brand" href="#inicio" aria-label="Valkyrias Nails Studios, inicio">
+        <a class="brand footer-brand" href="#inicio" aria-label="Valkyria Nail Studio, inicio">
           <span class="brand-mark" aria-hidden="true">V</span>
-          <span class="brand-name">Valkyrias <small>Nails Studios</small></span>
+          <span class="brand-name">Valkyria <small>Nail Studio</small></span>
         </a>
         <p>Manos que hablan de vos.<br />Acoyte 81 · Caballito, Buenos Aires</p>
         <div class="social-links" aria-label="Redes sociales">
@@ -610,7 +633,7 @@ const services = [
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© {new Date().getFullYear()} Valkyrias Nails Studios</span>
+        <span>© {new Date().getFullYear()} Valkyria Nail Studio</span>
         <span>Hecho con <span class="footer-heart">♥</span> para vos</span>
         <a href={googleBusiness} target="_blank" rel="noreferrer">Ver perfil en Google <span aria-hidden="true">↗</span></a>
       </div>
@@ -703,37 +726,6 @@ const services = [
         });
       }
 
-      const filterButtons = document.querySelectorAll<HTMLButtonElement>(".inspiration-filter");
-      const inspirationCards = document.querySelectorAll<HTMLElement>(".inspiration-card");
-      const galleryStatus = document.querySelector<HTMLElement>(".gallery-status");
-
-      filterButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          const selectedFilter = button.dataset.filter ?? "all";
-          let visibleCards = 0;
-
-          filterButtons.forEach((filterButton) => {
-            filterButton.setAttribute(
-              "aria-pressed",
-              String(filterButton === button),
-            );
-          });
-
-          inspirationCards.forEach((card) => {
-            const categories = card.dataset.categories?.split(" ") ?? [];
-            card.hidden =
-              selectedFilter !== "all" && !categories.includes(selectedFilter);
-            visibleCards += Number(!card.hidden);
-          });
-
-          if (galleryStatus) {
-            galleryStatus.textContent = `${visibleCards} ${
-              visibleCards === 1 ? "idea" : "ideas"
-            } para inspirarte`;
-          }
-        });
-      });
-
       if ("IntersectionObserver" in window && !reduceMotion) {
         const observer = new IntersectionObserver(
           (entries, currentObserver) => {
@@ -806,6 +798,10 @@ const services = [
 
   .scroll-progress { position: fixed; z-index: 30; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, #bd9161, #792c42 58%, #b66f69); box-shadow: 0 0 12px rgba(121, 44, 66, .32); transform: scaleX(var(--scroll-progress, 0)); transform-origin: left center; pointer-events: none; }
   .site-header { position: sticky; z-index: 20; top: 0; display: flex; align-items: center; justify-content: space-between; min-height: 82px; padding: 0 max(48px, calc((100vw - 1200px) / 2)); background: rgba(251, 248, 244, .94); border-bottom: 1px solid rgba(48, 35, 38, .08); backdrop-filter: blur(16px); transition: box-shadow .3s ease, background .3s ease; }
+  .announcement-bar { position: sticky; z-index: 25; top: 0; display: grid; height: 40px; place-items: center; overflow: hidden; padding-inline: 16px; background: var(--rose); color: #fff8f1; }
+  .announcement-bar > p { overflow: hidden; max-width: 100%; margin: 0; font-size: 11px; font-weight: 600; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+  .announcement-bar > a { display: flex; max-width: 100%; align-items: center; gap: 10px; overflow: hidden; font-size: 11px; font-weight: 600; }
+  .announcement-bar > a > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .brand { display: inline-flex; align-items: center; gap: 11px; }
   .brand-mark { display: grid; width: 39px; height: 39px; place-items: center; border: 1px solid var(--gold); border-radius: 50%; color: var(--rose); font-family: var(--serif); font-size: 25px; font-style: italic; line-height: 1; }
   .brand-name { display: flex; flex-direction: column; font-family: var(--serif); font-size: 20px; font-weight: 600; line-height: .96; letter-spacing: -.5px; }
@@ -878,21 +874,14 @@ const services = [
   .service-card:hover .service-flower { color: var(--rose); transform: rotate(45deg) scale(1.12); }
   .service-card h3 { margin: 30px 0 10px; font-family: var(--serif); font-size: 26px; font-weight: 500; }
   .service-card p { max-width: 290px; min-height: 47px; margin-bottom: 18px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+  .service-price { display: block; margin: -4px 0 15px; color: var(--rose); font-size: 12px; }
   .service-card > a { display: inline-flex; align-items: center; gap: 10px; color: var(--rose); font-size: 10px; font-weight: 700; }
 
   .inspiration { background: #f2e9e3; }
   .inspiration-heading { margin-bottom: 45px; }
-  .inspiration-filters { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 10px; }
-  .inspiration-filter { min-height: 36px; padding: 0 15px; border: 1px solid #d8c9c1; border-radius: 30px; background: transparent; color: var(--muted); cursor: pointer; font-family: var(--sans); font-size: 9px; transition: background .2s ease, border-color .2s ease, color .2s ease, box-shadow .2s ease, transform .2s ease; }
-  .inspiration-filter:hover, .inspiration-filter[aria-pressed="true"] { border-color: var(--rose); background: var(--rose); color: white; }
-  .inspiration-filter:hover { box-shadow: 0 5px 16px rgba(85, 33, 48, .17); transform: translateY(-2px); }
-  .inspiration-filter:focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; }
-  .gallery-status { min-height: 13px; margin: 0 0 10px; color: var(--muted); font-size: 8px; }
   .inspiration-grid { display: grid; height: 460px; grid-template-columns: 1.35fr 1fr 1fr; gap: 15px; }
   .inspiration-card { position: relative; min-width: 0; height: 100%; margin: 0; overflow: hidden; background: #dfcbc2; }
-  .inspiration-card[hidden] { display: none; }
   .inspiration-card::after { position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, rgba(32, 18, 19, .62)); content: ""; }
-  .inspiration-card picture { display: block; width: 100%; height: 100%; }
   .inspiration-card img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s cubic-bezier(.2, .7, .2, 1), filter .5s ease; }
   .inspiration-card:hover img { filter: saturate(1.08); transform: scale(1.055); }
   .inspiration-card figcaption { position: absolute; z-index: 1; right: 22px; bottom: 22px; left: 22px; display: flex; flex-direction: column; gap: 7px; color: white; }
@@ -902,22 +891,27 @@ const services = [
   .inspiration-note { max-width: 600px; margin: 0; color: var(--muted); font-size: 9px; line-height: 1.8; }
 
   .about { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 11%; }
-  .founder-card { position: relative; display: flex; width: min(100%, 470px); min-height: 445px; flex-direction: column; justify-content: center; overflow: hidden; padding: 48px; background: var(--rose-deep); color: #fff8f1; }
-  .founder-card::before, .founder-card::after { position: absolute; border: 1px solid rgba(213, 173, 132, .48); content: ""; pointer-events: none; }
-  .founder-card::before { inset: 14px; }
-  .founder-card::after { top: 50%; left: 50%; width: 250px; height: 250px; border-radius: 50%; opacity: .23; transform: translate(-50%, -50%); }
-  .founder-card-monogram { position: absolute; top: 50%; left: 50%; color: rgba(243, 217, 184, .1); font-family: var(--serif); font-size: 310px; font-style: italic; line-height: 1; transform: translate(-50%, -53%); }
-  .founder-card-overline, .founder-card-caption, .founder-card-years, .founder-card-note, .founder-card > strong { position: relative; z-index: 1; }
-  .founder-card-overline { position: absolute; top: 38px; left: 40px; color: #e8cdb5; font-family: var(--serif); font-size: 10px; letter-spacing: 3px; }
+  .founder-card { position: relative; display: flex; width: min(100%, 470px); min-height: 445px; flex-direction: column; justify-content: flex-end; overflow: hidden; padding: 48px; background: var(--rose-deep); color: #fff8f1; }
+  .founder-card::before, .founder-card::after { position: absolute; content: ""; pointer-events: none; }
+  .founder-card::before { z-index: 2; inset: 14px; border: 1px solid rgba(213, 173, 132, .48); }
+  .founder-card::after { z-index: 0; inset: 0; background: linear-gradient(180deg, rgba(48, 35, 38, .08) 5%, rgba(48, 35, 38, .12) 36%, rgba(48, 35, 38, .88) 100%); }
+  .founder-card-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; }
+  .founder-card-overline, .founder-card-caption, .founder-card-years, .founder-card > strong { position: relative; z-index: 3; }
+  .founder-card-overline { position: absolute; top: 38px; left: 40px; color: #fff2df; font-family: var(--serif); font-size: 10px; letter-spacing: 3px; text-shadow: 0 1px 10px rgba(48, 35, 38, .5); }
   .founder-card-caption { margin-bottom: 15px; color: #e8cdb5; font-size: 8px; font-weight: 600; letter-spacing: 2px; }
   .founder-card > strong { font-family: var(--serif); font-size: clamp(43px, 5vw, 58px); font-weight: 500; line-height: 1.08; }
   .founder-card > strong em { color: #e8cdb5; font-weight: 500; }
-  .founder-card-years { display: flex; align-items: center; gap: 12px; margin-top: 28px; color: #e8cdb5; font-family: var(--serif); font-size: 34px; }
+  .founder-card-years { display: flex; align-items: center; gap: 12px; margin-top: 18px; color: #e8cdb5; font-family: var(--serif); font-size: 34px; }
   .founder-card-years small { max-width: 90px; color: #d8c6c2; font-family: var(--sans); font-size: 7px; letter-spacing: 1.4px; line-height: 1.7; }
-  .founder-card-note { position: absolute; right: 38px; bottom: 38px; left: 38px; color: #d8c6c2; font-size: 7px; letter-spacing: 1.8px; text-align: center; }
   .about-copy .eyebrow { margin-bottom: 23px; }
   .about-copy h2 { margin-bottom: 22px; font-size: clamp(39px, 4vw, 52px); }
   .about-copy > p:not(.eyebrow) { max-width: 435px; margin-bottom: 25px; color: var(--muted); font-size: 12px; line-height: 2; }
+  .studio-photo { position: relative; height: 190px; margin: 24px 0 0; overflow: hidden; background: var(--blush); }
+  .studio-photo::after { position: absolute; inset: 35% 0 0; background: linear-gradient(transparent, rgba(32, 18, 19, .68)); content: ""; }
+  .studio-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 44%; }
+  .studio-photo figcaption { position: absolute; z-index: 1; right: 18px; bottom: 15px; left: 18px; display: flex; flex-direction: column; gap: 5px; color: white; }
+  .studio-photo figcaption span { font-size: 7px; font-weight: 700; letter-spacing: 1.8px; }
+  .studio-photo figcaption strong { font-family: var(--serif); font-size: 19px; font-weight: 500; }
   .about-detail { display: flex; align-items: center; gap: 16px; margin-top: 34px; padding-top: 22px; border-top: 1px solid var(--line); }
   .about-detail-number { color: var(--rose); font-family: var(--serif); font-size: 38px; }
   .about-detail-number span { font-size: 17px; }
@@ -931,8 +925,6 @@ const services = [
   .care-icon { position: absolute; top: 21px; right: 23px; color: var(--rose); font-size: 19px; }
   .care-card h3 { margin: 35px 0 11px; font-family: var(--serif); font-size: 23px; font-weight: 500; }
   .care-card p { min-height: 85px; margin-bottom: 17px; color: var(--muted); font-size: 10px; line-height: 1.9; }
-  .care-card a { display: inline-flex; align-items: center; gap: 9px; color: var(--rose); font-size: 9px; font-weight: 700; }
-  .care-card a:focus-visible { outline: 2px solid var(--rose); outline-offset: 4px; }
 
   .reviews { background: var(--rose-deep); color: #fff8f1; }
   .reviews-heading .eyebrow { color: #e8cdb5; }
@@ -965,6 +957,24 @@ const services = [
   .visit-info strong { font-size: 11px; }
   .visit-info span { color: var(--muted); font-size: 10px; }
   .visit-info a { margin-top: 4px; color: var(--rose); font-size: 9px; font-weight: 700; }
+  .schedule-card { margin: 0 0 16px; padding: 20px; border: 1px solid var(--line); background: linear-gradient(145deg, #fffdfa, #f8f1ec); box-shadow: 0 12px 30px rgba(72, 39, 43, .06); }
+  .schedule-heading { display: flex; align-items: center; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid var(--line); }
+  .schedule-icon { display: grid; width: 40px; height: 40px; flex: 0 0 40px; place-items: center; border-radius: 50%; background: var(--rose); color: #fff8f1; font-size: 21px; }
+  .schedule-heading > div { display: flex; flex: 1; flex-direction: column; gap: 4px; }
+  .schedule-heading h3 { margin: 0; font-family: var(--serif); font-size: 17px; font-weight: 500; }
+  .schedule-heading > div > span { color: var(--muted); font-size: 9px; }
+  .schedule-status { display: inline-flex; align-items: center; gap: 6px; color: #52705c; font-size: 7px; font-weight: 700; letter-spacing: .8px; white-space: nowrap; }
+  .schedule-status > span { width: 6px; height: 6px; border-radius: 50%; background: #699475; box-shadow: 0 0 0 3px rgba(105, 148, 117, .12); }
+  .schedule-list { margin: 0; padding: 3px 0; }
+  .schedule-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid rgba(230, 221, 214, .72); }
+  .schedule-row:last-child { border-bottom: 0; }
+  .schedule-row dt { color: var(--muted); font-size: 11px; font-weight: 500; }
+  .schedule-row dd { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--ink); font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .schedule-row dd > span { color: var(--gold); font-size: 10px; }
+  .schedule-row--empty dd { color: var(--muted); font-size: 10px; font-weight: 500; }
+  .schedule-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--rose); font-size: 9px; font-weight: 700; }
+  .schedule-link:hover { color: var(--rose-deep); }
+  .schedule-link:focus-visible { outline: 2px solid var(--rose); outline-offset: 4px; }
   .visit-button { margin-top: 12px; }
   .map-card { position: relative; height: 460px; overflow: hidden; background: #e8e1da; }
   .map-card iframe { width: 100%; height: 100%; border: 0; filter: saturate(.72) contrast(.94); }
@@ -1033,7 +1043,6 @@ const services = [
     .inspiration-grid { height: 380px; }
     .about { gap: 7%; }
     .founder-card { min-height: 390px; padding: 38px; }
-    .founder-card-monogram { font-size: 275px; }
     .founder-card-overline { top: 31px; left: 30px; }
     .founder-card > strong { font-size: clamp(42px, 5vw, 51px); }
     .care-grid { gap: 11px; }
@@ -1083,6 +1092,7 @@ const services = [
     .service-card { min-height: 0; padding: 23px; }
     .service-card h3 { margin-top: 20px; font-size: 25px; }
     .service-card p { min-height: 0; margin-bottom: 14px; }
+    .service-price { margin-bottom: 13px; }
     .inspiration-heading { margin-bottom: 30px; }
     .inspiration-grid { height: auto; grid-template-columns: 1fr 1fr; grid-template-rows: 260px 220px; gap: 10px; }
     .inspiration-card--large { grid-column: 1 / -1; }
@@ -1091,10 +1101,8 @@ const services = [
     .inspiration-note { font-size: 8px; text-align: left; }
     .about { grid-template-columns: 1fr; gap: 43px; }
     .founder-card { width: min(100% - 14px, 420px); min-height: 360px; padding: 36px; }
-    .founder-card-monogram { font-size: 260px; }
     .founder-card-overline { top: 29px; left: 28px; }
     .founder-card > strong { font-size: 48px; }
-    .founder-card-note { right: 24px; bottom: 29px; left: 24px; font-size: 6px; }
     .about-copy h2 { font-size: clamp(39px, 9.5vw, 49px); }
     .care-grid { grid-template-columns: 1fr; gap: 11px; }
     .care-card { min-height: 0; padding: 23px; }
@@ -1106,6 +1114,10 @@ const services = [
     .review-card blockquote { min-height: 0; font-size: 16px; }
     .visit { grid-template-columns: 1fr; gap: 38px; }
     .visit-copy h2 { margin-bottom: 28px; font-size: clamp(43px, 10vw, 54px); }
+    .schedule-card { padding: 17px; }
+    .schedule-row { min-height: 45px; }
+    .schedule-row dt { font-size: 10px; }
+    .schedule-row dd { gap: 6px; font-size: 11px; }
     .map-card { height: 360px; }
     .faq-item summary { padding-block: 18px; font-size: 17px; }
     .faq-item p { margin-right: 28px; }

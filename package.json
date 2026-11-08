@@ -1,5 +1,5 @@
 {
-  "name": "valkyrias-nails-studios",
+  "name": "valkyria-nail-studio",
   "type": "module",
   "version": "1.0.0",
   "engines": {
@@ -9,10 +9,17 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "check": "astro check"
   },
   "dependencies": {
+    "@astrojs/vercel": "^11.0.20",
+    "@libsql/client": "^0.18.0",
     "@vercel/speed-insights": "^2.1.0",
     "astro": "^7.4.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "typescript": "^6.0.3"
   }
 }

@@ -1,4 +1,5 @@
 ---
+import Analytics from "@vercel/analytics/astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
 import { Picture } from "astro:assets";
 import heroNailsImage from "../assets/hero-nails.jpg";
@@ -651,6 +652,7 @@ const inspirationImages = [
       <span class="floating-booking-arrow" aria-hidden="true">↗</span>
     </a>
 
+    <Analytics />
     <SpeedInsights />
 
     <script>

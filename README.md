@@ -136,16 +136,18 @@ otras redes usa una foto real de manicura en `public/images/og-nails.jpg` (JPEG
 de 1200 × 630). El isotipo y los recursos anteriores para redes siguen
 disponibles en `public/og-image.svg` y `public/og-image.png`.
 
-## Vercel Speed Insights
+## Vercel Analytics y Speed Insights
 
-El sitio incluye el componente oficial `@vercel/speed-insights/astro`. Para
-recibir métricas de rendimiento:
+El sitio incluye los componentes oficiales `@vercel/analytics/astro` y
+`@vercel/speed-insights/astro`. Para recibir métricas:
 
 1. Importa el repositorio y despliega el proyecto en Vercel.
-2. En el panel de Vercel, abre el proyecto y habilita **Speed Insights**.
+2. En el panel de Vercel, abre el proyecto y habilita **Web Analytics** y
+   **Speed Insights**.
 3. Vuelve a desplegar si Vercel lo solicita y visita el sitio publicado para
    empezar a generar datos.
 
-Speed Insights no recopila métricas durante el desarrollo local. La integración
-se encuentra en `src/pages/index.astro`. El sitio se despliega en Vercel con el
-adaptador oficial de Astro.
+Las métricas se recopilan en producción cuando los productos están habilitados
+en Vercel; no se recopilan durante el desarrollo local. Las integraciones están
+en `src/pages/index.astro`. El sitio se despliega en Vercel con el adaptador
+oficial de Astro.
